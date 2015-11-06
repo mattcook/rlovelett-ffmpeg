@@ -129,7 +129,8 @@ module FFMPEG
     end
 
     def convert_screenshot(value)
-      value ? "-vframes 1 -f image2" : ""
+      quality = " -q:v #{self[:quality]}" if self[:quality].to_i > 0
+      value ? "-vframes #{self[:vframes] || 1} -f image2" : ""
     end
 
     def convert_x264_vprofile(value)
@@ -154,7 +155,7 @@ module FFMPEG
         "-filter_complex 'scale=#{self[:resolution]},overlay=x=#{value[:padding_x]}:y=main_h-overlay_h-#{value[:padding_y]}'"
       when "RB"
         "-filter_complex 'scale=#{self[:resolution]},overlay=x=main_w-overlay_w-#{value[:padding_x]}:y=main_h-overlay_h-#{value[:padding_y]}'"
-      end  
+      end
     end
 
     def convert_custom(value)

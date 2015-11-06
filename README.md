@@ -152,6 +152,20 @@ You can use the screenshot method to make taking screenshots a bit simpler.
 movie.screenshot("screenshot.jpg")
 ```
 
+To generate multiple screenshots in a single pass, specify `vframes`. The following code
+generates up to 20 screenshots every 10 seconds:
+
+``` ruby
+movie.screenshot("screenshot.jpg", vframes: 20, frame_rate: '1/6')
+```
+
+To specify the quality when generating compressed screenshots (.jpg), use `quality` which specifies
+ffmpeg `-v:q` option. Quality is an integer between 1 and 31, where lower is better quality:
+
+``` ruby
+movie.screenshot("screenshot.jpg", quality: 3)
+```
+
 The screenshot method has the very same API as transcode so the same options will work.
 
 ``` ruby
