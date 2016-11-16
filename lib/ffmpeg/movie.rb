@@ -5,7 +5,7 @@ module FFMPEG
   class Movie
     attr_reader :path, :duration, :time, :bitrate, :rotation, :creation_time
     attr_reader :video_stream, :video_codec, :video_bitrate, :colorspace, :width, :height, :sar, :dar, :frame_rate, :has_b_frames, :video_profile, :video_level
-    attr_reader :audio_stream, :audio_codec, :audio_bitrate, :audio_sample_rate, :audio_channels
+    attr_reader :audio_streams, :audio_stream, :audio_codec, :audio_bitrate, :audio_sample_rate, :audio_channels, :audio_tags
     attr_reader :container
     attr_reader :error
 
@@ -82,16 +82,27 @@ module FFMPEG
         end
 
         unless audio_streams.empty?
-          # TODO: Handle multiple audio codecs
-          audio_stream = audio_streams.first
-          @audio_channels = audio_stream[:channels].to_i
-          @audio_codec = audio_stream[:codec_name]
-          @audio_sample_rate = audio_stream[:sample_rate].to_i
-          @audio_bitrate = audio_stream[:bit_rate].to_i
-          @audio_channel_layout = audio_stream[:channel_layout]
-          @audio_stream = "#{audio_codec} (#{audio_stream[:codec_tag_string]} / #{audio_stream[:codec_tag]}), #{audio_sample_rate} Hz, #{audio_channel_layout}, #{audio_stream[:sample_fmt]}, #{audio_bitrate} bit/s"
-        end
+          @audio_streams = audio_streams.map do |stream|
+            {
+              :channels => stream[:channels].to_i,
+              :codec_name => stream[:codec_name],
+              :sample_rate => stream[:sample_rate].to_i,
+              :bitrate => stream[:bit_rate].to_i,
+              :channel_layout => stream[:channel_layout],
+              :tags => stream[:tags],
+              :stream_overview => "#{stream[:codec_name]} (#{stream[:codec_tag_string]} / #{stream[:codec_tag]}), #{stream[:sample_rate].to_i} Hz, #{stream[:channel_layout]}, #{stream[:sample_fmt]}, #{stream[:bit_rate].to_i} bit/s"
+            }
+          end
 
+          audio_stream = @audio_streams.first
+          @audio_channels = audio_stream[:channels]
+          @audio_codec = audio_stream[:codec_name]
+          @audio_sample_rate = audio_stream[:sample_rate]
+          @audio_bitrate = audio_stream[:bitrate]
+          @audio_channel_layout = audio_stream[:channel_layout]
+          @audio_tags = audio_stream[:tags]
+          @audio_stream = audio_stream[:stream_overview]
+        end
       end
 
       @invalid = true if metadata.key?(:error)
